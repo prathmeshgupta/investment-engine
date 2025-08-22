@@ -414,6 +414,47 @@ class PerformanceMonitor:
         return report
 
 
+class PerformanceOptimizer:
+    """Wrapper to orchestrate performance optimizations for the dashboard.
+
+    Exposes a simple optimize_execution() method used by the UI callbacks.
+    Internally leverages fast portfolio optimization and shared utilities.
+    """
+
+    def __init__(self, config: Optional[PerformanceConfig] = None):
+        self.config = config or PerformanceConfig()
+        self.cache = CacheManager(self.config)
+        self.parallel = ParallelProcessor(self.config)
+        self.monitor = PerformanceMonitor()
+
+    def optimize_execution(self) -> Dict[str, Any]:
+        """Run a quick optimization routine and return a summary dict.
+
+        - Builds a small synthetic returns matrix
+        - Runs fast_portfolio_optimization (Numba-accelerated)
+        - Returns the resulting weights and basic metadata
+        """
+        # Profile this method for visibility in performance report
+        @self.monitor.profile_function
+        def _run() -> Dict[str, Any]:
+            np.random.seed(42)
+            n_days = 252
+            n_assets = 5
+            returns = np.random.normal(0.001, 0.02, size=(n_days, n_assets))
+
+            weights = fast_portfolio_optimization(returns)
+            summary = {
+                'optimal_weights': weights.tolist(),
+                'assets': n_assets,
+                'days': n_days,
+                'timestamp': datetime.now().isoformat()
+            }
+            return summary
+
+        result = _run()
+        return result
+
+
 # Singleton instance
 _performance_config = PerformanceConfig()
 _cache_manager = CacheManager(_performance_config)
