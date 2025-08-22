@@ -167,16 +167,19 @@ class BacktestEngine:
             rebalance_dates = [d for d in date_index if d.weekday() == 0]
         elif frequency == RebalanceFrequency.MONTHLY:
             # Rebalance on first trading day of month
-            monthly_dates = date_index.groupby([date_index.year, date_index.month]).first()
-            rebalance_dates = monthly_dates.values.tolist()
+            ser = pd.Series(date_index, index=date_index)
+            monthly_dates = ser.groupby([date_index.year, date_index.month]).first()
+            rebalance_dates = monthly_dates.tolist()
         elif frequency == RebalanceFrequency.QUARTERLY:
             # Rebalance quarterly
-            quarterly_dates = date_index.groupby([date_index.year, date_index.quarter]).first()
-            rebalance_dates = quarterly_dates.values.tolist()
+            ser = pd.Series(date_index, index=date_index)
+            quarterly_dates = ser.groupby([date_index.year, date_index.quarter]).first()
+            rebalance_dates = quarterly_dates.tolist()
         elif frequency == RebalanceFrequency.ANNUALLY:
             # Rebalance annually
-            yearly_dates = date_index.groupby(date_index.year).first()
-            rebalance_dates = yearly_dates.values.tolist()
+            ser = pd.Series(date_index, index=date_index)
+            yearly_dates = ser.groupby(date_index.year).first()
+            rebalance_dates = yearly_dates.tolist()
         
         return rebalance_dates
     
@@ -198,7 +201,9 @@ class BacktestEngine:
         for symbol, position in portfolio.positions.items():
             if symbol in returns.index:
                 # Update market value based on return
-                new_market_value = position.market_value * (1 + returns[symbol])
+                mv = float(position.market_value)
+                r = float(returns[symbol])
+                new_market_value = mv * (1.0 + r)
                 position.market_value = Decimal(str(new_market_value))
                 position.last_updated = datetime.now()
         
