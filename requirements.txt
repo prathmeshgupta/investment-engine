@@ -148,3 +148,8 @@ newrelic==9.0.0
 # Database drivers and DNS utilities
 pymongo==4.14.1
 dnspython==2.7.0
+
+# System and performance
+psutil==5.9.8
+numba==0.59.1
+Cython==0.29.36
