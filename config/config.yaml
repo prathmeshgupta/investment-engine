@@ -1,0 +1,41 @@
+backtesting:
+  benchmark_symbol: SPY
+  initial_capital: 1000000
+  transaction_cost_model: proportional
+dashboard:
+  auto_refresh_interval: 30
+  debug: false
+  host: 127.0.0.1
+  port: 8050
+data:
+  cache_enabled: true
+  cache_ttl: 3600
+  max_retries: 3
+  primary_provider: yahoo
+  timeout: 30
+database:
+  max_overflow: 20
+  pool_size: 10
+  pool_timeout: 30
+  url: sqlite:///investment_engine.db
+execution:
+  default_slippage: 0.001
+  execution_delay: 0.1
+  max_order_size: 1000000
+  retry_attempts: 3
+logging:
+  disable_third_party: true
+  file_path: logs/investment_engine.log
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  level: INFO
+optimization:
+  default_method: mean_variance
+  max_iterations: 1000
+  regularization: 0.01
+  tolerance: 1.0e-06
+risk:
+  max_drawdown: 0.2
+  max_individual_weight: 0.1
+  max_portfolio_var: 0.05
+  max_sector_weight: 0.3
+  var_confidence_level: 0.95

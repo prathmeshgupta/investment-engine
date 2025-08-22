@@ -1,0 +1,25 @@
+{
+  "versions": [
+    {
+      "name": "backup_20250822_190503",
+      "timestamp": "20250822_190503",
+      "description": "Initial backup before restoration",
+      "files": [
+        "dashboard/",
+        "config/",
+        "auto_config.py",
+        "launcher.py",
+        "main.py",
+        "analytics/",
+        "backtesting/",
+        "execution/",
+        "optimization/",
+        "risk/",
+        "factors/",
+        "core/"
+      ],
+      "hash": "b1798d9b91fda44f"
+    }
+  ],
+  "current": "backup_20250822_190503"
+}

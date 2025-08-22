@@ -1,0 +1,59 @@
+{
+  "app": {
+    "name": "Investment Engine",
+    "version": "1.0.0",
+    "environment": "production",
+    "debug": false,
+    "secret_key": "6G3z2Npk8adJK3PUeJgTduha5eCz4TpSj6Fh4cvQsRQ"
+  },
+  "database": {
+    "type": "sqlite",
+    "path": "data\\investment_engine.db",
+    "backup_path": "data\\backup.db"
+  },
+  "cache": {
+    "type": "memory",
+    "max_size": 1000,
+    "ttl": 3600
+  },
+  "market_data": {
+    "primary_source": "yfinance",
+    "fallback_sources": [
+      "yahoo"
+    ],
+    "update_interval": 60,
+    "batch_size": 50,
+    "retry_attempts": 3,
+    "timeout": 30
+  },
+  "dashboard": {
+    "host": "127.0.0.1",
+    "port": 8050,
+    "auto_open_browser": true,
+    "refresh_interval": 5000
+  },
+  "security": {
+    "enable_auth": false,
+    "session_timeout": 86400,
+    "encryption_key": "Irna6Hoh0aEIFGIXXREcYa2v6K0-QRq5wdFYLoluvGY"
+  },
+  "performance": {
+    "max_workers": 4,
+    "cache_enabled": true,
+    "lazy_loading": true,
+    "compression": true
+  },
+  "features": {
+    "real_time_data": true,
+    "backtesting": true,
+    "paper_trading": true,
+    "ai_assistant": true,
+    "export_enabled": true
+  },
+  "paths": {
+    "data": "data",
+    "logs": "logs",
+    "cache": "data\\cache",
+    "exports": "data\\exports"
+  }
+}
