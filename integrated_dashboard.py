@@ -709,9 +709,63 @@ def run_backtest(n_clicks, strategy, start_date, end_date):
             ("Max Drawdown", pct(m.max_drawdown)),
         ]
 
+        # Build equity curve and drawdown figures
+        hist_df = pd.DataFrame(results['portfolio_history'])
+        charts = []
+        if not hist_df.empty and {'date', 'portfolio_value'}.issubset(hist_df.columns):
+            hist_df = hist_df.copy()
+            hist_df['date'] = pd.to_datetime(hist_df['date'])
+            hist_df = hist_df.sort_values('date')
+            hist_df.set_index('date', inplace=True)
+
+            # Equity curve
+            eq_fig = go.Figure()
+            eq_fig.add_trace(go.Scatter(
+                x=hist_df.index,
+                y=hist_df['portfolio_value'],
+                mode='lines',
+                line=dict(color='#667eea', width=2),
+                name='Portfolio Value'
+            ))
+            eq_fig.update_layout(
+                title='Equity Curve',
+                xaxis_title='Date',
+                yaxis_title='Value',
+                template='plotly_white',
+                height=350
+            )
+
+            # Drawdown
+            pv = hist_df['portfolio_value']
+            peak = pv.cummax()
+            drawdown = (pv / peak) - 1.0
+            dd_fig = go.Figure()
+            dd_fig.add_trace(go.Scatter(
+                x=drawdown.index,
+                y=drawdown,
+                fill='tozeroy',
+                mode='lines',
+                line=dict(color='#f5576c', width=2),
+                name='Drawdown'
+            ))
+            dd_fig.update_layout(
+                title='Drawdown',
+                xaxis_title='Date',
+                yaxis_title='Drawdown',
+                template='plotly_white',
+                height=250,
+                yaxis_tickformat=',.0%'
+            )
+
+            charts = [
+                dcc.Graph(figure=eq_fig, id='equity-curve-graph'),
+                dcc.Graph(figure=dd_fig, id='drawdown-graph')
+            ]
+
         return html.Div([
             html.H4("Backtest Results"),
-            html.Ul([html.Li(f"{k}: {v}") for k, v in metrics_list])
+            html.Ul([html.Li(f"{k}: {v}") for k, v in metrics_list]),
+            html.Div(charts, className='glass-card') if charts else html.Div()
         ])
 
     except Exception as e:
