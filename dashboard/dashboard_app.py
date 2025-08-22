@@ -85,8 +85,11 @@ class DashboardApp:
         self.cache = get_cache()
         self.data_feed = get_data_feed()
         
-        # Initialize Dash app
-        self.app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+        # Initialize Dash app with custom CSS
+        assets_folder = os.path.join(os.path.dirname(__file__), 'assets')
+        self.app = dash.Dash(__name__, 
+                           external_stylesheets=[dbc.themes.BOOTSTRAP],
+                           assets_folder=assets_folder)
         
         self._setup_layout()
         self._setup_callbacks()
@@ -94,6 +97,8 @@ class DashboardApp:
     def _setup_layout(self):
         """Setup dashboard layout."""
         self.app.layout = html.Div([
+            # Include custom CSS
+            html.Link(rel='stylesheet', href='/assets/custom.css'),
             # Header
             html.Div([
                 html.Div([

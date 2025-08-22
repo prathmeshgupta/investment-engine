@@ -65,6 +65,8 @@ class InvestmentEngine:
         )
         
         # Initialize analytics components
+        from analytics.strategy_analyzer import AdvancedStrategyAnalyzer
+        from analytics.strategy_builder import FactorInvestingStrategyBuilder
         self.strategy_analyzer = AdvancedStrategyAnalyzer()
         self.strategy_builder = FactorInvestingStrategyBuilder(
             self.factor_engine,
@@ -379,7 +381,7 @@ def main():
     
     # Auto-setup if available
     if AUTO_CONFIG_AVAILABLE:
-        print("🚀 Using automated configuration...")
+        print("[*] Using automated configuration...")
         auto_config = AutoConfig()
         config = auto_config.setup_everything()
     

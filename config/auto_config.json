@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "environment": "production",
     "debug": false,
-    "secret_key": "6G3z2Npk8adJK3PUeJgTduha5eCz4TpSj6Fh4cvQsRQ"
+    "secret_key": "p5TclhDYo2DcfhxemBKpnnSt7Pqitp1ZELUvQuTaV40"
   },
   "database": {
     "type": "sqlite",
@@ -35,7 +35,7 @@
   "security": {
     "enable_auth": false,
     "session_timeout": 86400,
-    "encryption_key": "Irna6Hoh0aEIFGIXXREcYa2v6K0-QRq5wdFYLoluvGY"
+    "encryption_key": "MqQeOFzJI4zT17mm6MncLKzj-rfP8ijwYBiwTbD-TH8"
   },
   "performance": {
     "max_workers": 4,

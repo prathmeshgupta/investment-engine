@@ -1,7 +1,32 @@
-/* Modern Investment Dashboard Styling */
+/* Modern UI Design - Cheerful & Professional Factor Investing Dashboard */
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Import Google Fonts - Professional but Playful */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* CSS Variables for Consistent Theming */
+:root {
+    /* Soft Pastel Gradient Backgrounds */
+    --gradient-soft-purple: linear-gradient(135deg, #e4c1f9 0%, #fcf4dd 100%);
+    --gradient-soft-blue: linear-gradient(135deg, #a9def9 0%, #d0f4de 100%);
+    --gradient-soft-pink: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    --gradient-main: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    
+    /* Accent Colors */
+    --primary: #667eea;
+    --secondary: #764ba2;
+    --success: #43e97b;
+    --warning: #fee140;
+    --danger: #f5576c;
+    
+    /* Typography */
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-display: 'Poppins', 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
 
 /* Global Styles */
 * {
@@ -11,8 +36,8 @@
 }
 
 html, body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    font-family: var(--font-main);
+    background: var(--gradient-main);
     background-attachment: fixed;
     min-height: 100vh;
     height: auto;
@@ -20,31 +45,73 @@ html, body {
     overflow-x: hidden;
     overflow-y: scroll;
     scroll-behavior: smooth;
+    line-height: 1.6;
 }
 
-/* Main Container */
+/* Main Container with Smooth Animations */
 #react-entry-point {
     background: transparent;
     min-height: 100vh;
     overflow: visible;
+    animation: fadeIn 0.8s ease-out;
 }
 
 .main-container {
     min-height: 100vh;
     padding-bottom: 2rem;
+    animation: slideUp 0.6s ease-out;
 }
 
-/* Header Styling */
+/* Smooth Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes borderGlow {
+    0%, 100% { 
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.5),
+                    0 0 20px rgba(102, 126, 234, 0.3);
+    }
+    50% { 
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.8),
+                    0 0 40px rgba(102, 126, 234, 0.4);
+    }
+}
+
+/* Header Styling - Clean & Modern */
 .header-container {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(30px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 2px solid rgba(102, 126, 234, 0.1);
     padding: 2rem 2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border-radius: 0 0 24px 24px;
     position: relative;
     overflow: hidden;
+    transition: var(--transition-smooth);
+}
+
+.header-container:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
 }
 
 .header-container::before {
@@ -55,7 +122,7 @@ html, body {
     right: 0;
     bottom: 0;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-    z-index: -1;
+    z-index: 0;
 }
 
 .header-title {
