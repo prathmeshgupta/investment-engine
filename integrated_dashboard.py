@@ -16,12 +16,14 @@ import time
 from auto_config import AutoConfig
 from optimization.optimizer_engine import OptimizerEngine
 from optimization.performance_optimizer import PerformanceOptimizer
-from backtesting.backtest_engine import BacktestingEngine
+from backtesting import BacktestEngine
 from factors.comprehensive_engine import ComprehensiveFactorEngine
 from analytics.strategy_analyzer import AdvancedStrategyAnalyzer
 from analytics.strategy_builder import FactorInvestingStrategyBuilder
 from risk.risk_manager import RiskManager
 from data.data_manager import DataManager
+from core.models import Strategy
+from core.enums import RebalanceFrequency
 
 # Initialize configuration and backend
 auto_config = AutoConfig()
@@ -35,7 +37,7 @@ data_manager = DataManager(config, data_feed, cache)
 risk_manager = RiskManager(config)
 optimizer = OptimizerEngine(config, data_manager)
 performance_opt = PerformanceOptimizer()
-backtester = BacktestingEngine(config, data_manager)
+backtester = BacktestEngine()
 factor_engine = ComprehensiveFactorEngine(data_manager)
 strategy_analyzer = AdvancedStrategyAnalyzer()
 strategy_builder = FactorInvestingStrategyBuilder(data_manager)
@@ -603,21 +605,117 @@ def create_positions_table(portfolio_data):
 )
 def run_backtest(n_clicks, strategy, start_date, end_date):
     """Run backtest with selected parameters."""
-    if n_clicks:
-        # Run actual backtest using backend
-        results = {
-            'Total Return': '45.2%',
-            'Sharpe Ratio': 2.1,
-            'Max Drawdown': '-12.3%',
-            'Win Rate': '62%'
-        }
-        
+    if not n_clicks:
+        return ""
+
+    try:
+        # Parse dates
+        start_dt = pd.to_datetime(start_date) if start_date else (datetime.now() - timedelta(days=365))
+        end_dt = pd.to_datetime(end_date) if end_date else datetime.now()
+
+        # Define universe (simple demo universe)
+        default_universe = ['AAPL', 'MSFT', 'AMZN', 'GOOGL', 'META']
+        universe = default_universe
+
+        # Fetch historical prices
+        px = yf.download(universe, start=start_dt.date(), end=end_dt.date(), progress=False, auto_adjust=True)
+        # Handle multi-index columns from yfinance
+        if isinstance(px.columns, pd.MultiIndex):
+            if ('Adj Close' in px.columns.levels[0]) or ('Close' in px.columns.levels[0]):
+                lvl0 = 'Adj Close' if 'Adj Close' in px.columns.levels[0] else 'Close'
+                price_data = px[lvl0].copy()
+            else:
+                # Fallback: take the last level assuming it is tickers
+                price_data = px.xs(px.columns.levels[0][-1], level=0, axis=1)
+        else:
+            price_data = px.copy()
+
+        # Keep only the selected universe columns and drop empty
+        price_data = price_data[[c for c in universe if c in price_data.columns]].dropna(how='all')
+        if price_data.empty:
+            return html.Div([html.P("No price data available for the selected period/universe.", style={'color': 'red'})])
+
+        # Weight function definitions
+        lookback_days = 126
+
+        def equal_weight(_lookback: pd.DataFrame, _date: datetime) -> pd.Series:
+            cols = [c for c in universe if c in _lookback.columns]
+            if not cols:
+                return pd.Series(dtype=float)
+            w = pd.Series(1.0 / len(cols), index=cols)
+            return w
+
+        def momentum_weights(_lookback: pd.DataFrame, _date: datetime) -> pd.Series:
+            if _lookback.empty:
+                return equal_weight(_lookback, _date)
+            rets = _lookback.pct_change().tail(60).mean()
+            rets = rets.clip(lower=0)  # long-only momentum
+            if rets.sum() <= 0:
+                return equal_weight(_lookback, _date)
+            w = rets / rets.sum()
+            return w
+
+        def low_vol_weights(_lookback: pd.DataFrame, _date: datetime) -> pd.Series:
+            if _lookback.empty:
+                return equal_weight(_lookback, _date)
+            vol = _lookback.pct_change().tail(60).std()
+            inv_vol = 1.0 / vol.replace(0, np.nan)
+            inv_vol = inv_vol.fillna(0)
+            if inv_vol.sum() <= 0:
+                return equal_weight(_lookback, _date)
+            w = inv_vol / inv_vol.sum()
+            return w
+
+        if strategy == 'momentum':
+            weight_fn = momentum_weights
+            strat_name = 'Momentum Factor'
+        elif strategy == 'low_vol':
+            weight_fn = low_vol_weights
+            strat_name = 'Low Volatility'
+        else:
+            weight_fn = equal_weight
+            strat_name = (strategy or 'Equal Weight').title()
+
+        # Build Strategy config
+        strat = Strategy(
+            name=strat_name,
+            description=f"Auto-generated {strat_name} strategy",
+            universe=universe,
+            rebalance_frequency=RebalanceFrequency.MONTHLY
+        )
+
+        # Run backtest
+        results = backtester.run_backtest(
+            strategy=strat,
+            price_data=price_data,
+            weight_function=weight_fn,
+            start_date=start_dt,
+            end_date=end_dt
+        )
+
+        m = results['performance_metrics']
+
+        def pct(x: float) -> str:
+            try:
+                return f"{x*100:.2f}%"
+            except Exception:
+                return "N/A"
+
+        metrics_list = [
+            ("Total Return", pct(m.total_return)),
+            ("Annualized Return", pct(m.annualized_return)),
+            ("Volatility", pct(m.volatility)),
+            ("Sharpe Ratio", f"{m.sharpe_ratio:.2f}"),
+            ("Max Drawdown", pct(m.max_drawdown)),
+        ]
+
         return html.Div([
             html.H4("Backtest Results"),
-            html.Ul([html.Li(f"{k}: {v}") for k, v in results.items()])
+            html.Ul([html.Li(f"{k}: {v}") for k, v in metrics_list])
         ])
-    
-    return ""
+
+    except Exception as e:
+        return html.Div([html.P(f"Backtest failed: {e}", style={'color': 'red'})])
 
 # Callback for optimize button
 @app.callback(
