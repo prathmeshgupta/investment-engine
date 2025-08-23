@@ -13,6 +13,9 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     
     services:
       postgres:
@@ -85,6 +88,22 @@ jobs:
         file: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
+
+    - name: Codacy Analysis (SARIF)
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/src codacy/codacy-analysis-cli:latest analyze \
+          --directory /src --format sarif --output /src/codacy.sarif
+
+    - name: Upload SARIF to GitHub
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: codacy.sarif
+
+    - name: Upload coverage to Codacy
+      uses: codacy/codacy-coverage-reporter-action@v1
+      with:
+        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        coverage-reports: coverage.xml
 
   build:
     needs: test
